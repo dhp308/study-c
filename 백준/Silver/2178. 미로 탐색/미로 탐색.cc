@@ -1,103 +1,64 @@
-#include<iostream> 
-#include <queue>
+#include<iostream>
 #include<cstring>
-#include<vector>
-using namespace std; 
-void BFS(int startNode);
-int N, M;
-int map[101][101];
-vector<int> Distance;
-vector<vector<int>> graph;
-vector<bool> visited;
-int main() { 
-	
-	
-	
+#include<queue>
+using namespace std;
 
-	
-	
+int N, M, map[101][101],dist=0;
+bool visited[101][101];
+int dx[] = { -1,1,0,0 };
+int dy[] = { 0,0,-1,1 };
+
+struct Node {
+	int x = 0;
+	int y = 0;
+};
+
+void BFS(Node A);
+
+int main() {
 	cin >> N >> M;
-	graph.resize(N * M + 1);
-	visited.resize(N*M + 1, false);
-	Distance.resize(N * M + 1, 0);
 
-
-	for (int n = 1; n <= N; n++) {
-		string s; // 1. string 변수 선언
-		cin >> s;   // 2. int 대신 string으로 한 줄을 통째로 읽음
-
-		// 3. 0번 인덱스부터 M-1번 인덱스까지 순회
-		for (int i = 0; i < M; i++) {
-			// map[n][i+1] : 맵은 (1,1)부터 시작
-			// s[i] : 문자열은 0부터 시작
-			// s[i] - '0' : '1'(문자)를 1(숫자)로 변환
-			map[n][i + 1] = s[i] - '0';
+	for (int i = 1; i <= N; i++) {
+		string a;
+		cin >> a;
+		for (int k = 1; k <= M; k++) {
+			map[i][k] = a[k - 1] - '0';
 		}
 	}
 
-	for (int x = 1; x <= N; x++) {
-		for (int y = 1; y <= M; y++) {
-			if (map[x][y] == 0) {
-				continue;
-			}
-			if ((y - 1) >= 1 && map[x][y-1] == 1) {
-				graph[(x - 1) * M + y].push_back((x - 1) * M + y - 1);
-			}
-			if ((y + 1) <= M && map[x][y+1] == 1) {
-				graph[(x - 1) * M + y].push_back((x - 1) * M + y + 1);
-			}
-			if ((x - 1) >= 1 && map[x-1][y] == 1) {
-				graph[(x - 1) * M + y].push_back((x - 2) * M + y);
-			}
-			if ((x + 1) <= N && map[x+1][y ] == 1) {
-				graph[(x - 1) * M + y].push_back(x * M + y );
-			}
-		}
-	}
+	Node A = { 1,1 };
+	BFS(A);
 
+	cout << dist;
 
-	BFS(1);
-	
 	return 0;
 }
 
-
-
-void BFS(int start_node) {
-	queue<int> q;
-
+void BFS(Node A) {
 	
-	q.push(start_node);
-	visited[start_node] = true;
-	Distance[start_node] = 1;
-	// 2. 큐가 빌 때까지 반복
+	queue<Node> q;
+	q.push(A);
+	visited[A.x][A.y] = true;
+
 	while (!q.empty()) {
-		int v = q.front();
-		if (v == N*M) {
-			cout << Distance[v];
-			return;
-		}
-			
-		q.pop();
+		dist++;
+		int SIZE = q.size();
 
-		// 큐에서 꺼낸 순서가 방문 순서이므로 출력
-		
+		for (int i = 0; i < SIZE; i++) {
 
-		// 3. 현재 노드와 연결된 이웃 노드들을 (정렬된 순서대로) 확인
-		for (int neighbor : graph[v]) {
-			// 4. 아직 방문하지 않은 이웃이라면
-			if (!visited[neighbor]) {
-				// 방문 처리하고 큐에 추가
-				visited[neighbor] = true;
-				q.push(neighbor);
-				Distance[neighbor] = Distance[v] + 1;
-				
+			Node B = q.front();
+			q.pop();
+			if (B.x == M && B.y == N)
+				return;
+
+			for (int i = 0; i < 4; i++) {
+				int X = B.x + dx[i], Y = B.y + dy[i];
+				if (X >= 1 && X <= M && Y >= 1 && Y <= N && visited[X][Y] == false && map[Y][X] == 1) {
+					visited[X][Y] = true;
+					Node C = { X,Y };
+					q.push(C);
+				}
 			}
-			
-				
-
 		}
-
-		
 	}
 }
