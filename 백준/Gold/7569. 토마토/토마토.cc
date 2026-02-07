@@ -1,140 +1,90 @@
-#include<iostream> 
-#include <queue>
-#include <string>
+#include<iostream>
 #include<cstring>
-using namespace std; 
-int tomatto[101][101][101], M, N, H;
-int day = 0;
-
-
-
-struct Point {
-	int x;
-	int y;
-	int z;
+#include<queue>
+using namespace std;
+int N, M, H, box[101][101][101];
+int dx[] = { -1,1,0,0,0,0 }, dy[] = { 0,0,-1,1,0,0 }, dz[] = { 0,0,0,0,-1,1 };
+bool visited[101][101][101];
+struct Node {
+	int z, y, x;
 };
+int BFS();
 
-void BFS(queue<Point>& q, int MAX);
-
-int main() { 
-	memset(tomatto, 0, sizeof(tomatto));
-	int num_of_queue = 0;
+int main() {
+	memset(visited, false, sizeof(visited));
+	memset(box, 0, sizeof(box));
 
 	cin >> M >> N >> H;
 
-	for (int h = 1; h <= H; h++) {
-		for (int n = 1; n <= N; n++) {
-			for (int m = 1; m <= M; m++) {
-				cin >> tomatto[h][n][m];
+	for (int z = 1; z <= H; z++) {
+		for (int y = 1; y <= N; y++) {
+			for (int x = 1; x <= M; x++) {
+				cin >> box[z][y][x];
 			}
 		}
 	}
 
-	queue<Point> q;
+	int days = BFS();
 
-	for (int h = 1; h <= H; h++) {
-		for (int n = 1; n <= N; n++) {
-			for (int m = 1; m <= M; m++) {
-				if (tomatto[h][n][m] == 1) {
-					
-					Point a;
-					a.z = h;
-					a.y = n;
-					a.x = m;
-					q.push(a);
-					num_of_queue++;
+	cout << days << endl;
 
-				}
-			}
-		}
-	}
-
-	BFS(q, num_of_queue);
-	
-	for (int h = 1; h <= H; h++) {
-		for (int n = 1; n <= N; n++) {
-			for (int m = 1; m <= M; m++) {
-				if (tomatto[h][n][m] == 0) {
-
-					cout << -1;
-					return 0;
-
-				}
-			}
-		}
-	}
-
-	cout << day-1;
-		
-		
-	
 
 	return 0;
 }
 
+int BFS() {
+	queue<Node> q;
+	int days = 0, flag = 0;
 
-void BFS(queue<Point>& q, int MAX) {
-	day++;
-	if (q.empty()) {
-		day--;
-		return;
-	}
-		
-
-	queue<Point> P;
-
-	for (int i = 0; i < MAX; i++)
- {
-		int X, Y, Z;
-		Point u = q.front();
-		Z = u.z;
-		Y = u.y;
-		X = u.x;
-		q.pop();
-
-		if (Z + 1 <= H && tomatto[Z + 1][Y][X] == 0) {
-			tomatto[Z + 1][Y][X] = 1;
-			Point v;
-			v = u;
-			v.z += 1;
-			P.push(v);
-		}
-		if (Z - 1 >= 1 && tomatto[Z - 1][Y][X] == 0) {
-			tomatto[Z - 1][Y][X] = 1;
-			Point v;
-			v = u;
-			v.z -= 1;
-			P.push(v);
-		}
-		if (Y + 1 <= N && tomatto[Z][Y + 1][X] == 0) {
-			tomatto[Z][Y + 1][X] = 1;
-			Point v;
-			v = u;
-			v.y += 1;
-			P.push(v);
-		}
-		if (Y - 1 >= 1 && tomatto[Z][Y - 1][X] == 0) {
-			tomatto[Z][Y - 1][X] = 1;
-			Point v;
-			v = u;
-			v.y -= 1;
-			P.push(v);
-		}
-		if (X + 1 <= M && tomatto[Z][Y][X + 1] == 0) {
-			tomatto[Z][Y][X + 1] = 1;
-			Point v;
-			v = u;
-			v.x += 1;
-			P.push(v);
-		}
-		if (X - 1 >= 1 && tomatto[Z][Y][X - 1] == 0) {
-			tomatto[Z][Y][X - 1] = 1;
-			Point v;
-			v = u;
-			v.x -= 1;
-			P.push(v);
+	for (int z = 1; z <= H; z++) {
+		for (int y = 1; y <= N; y++) {
+			for (int x = 1; x <= M; x++) {
+				if (box[z][y][x] == 1) {
+					Node A = { z,y,x };
+					q.push(A);
+				}
+				else if (box[z][y][x] == 0) {
+					flag++;
+				}
+					
+			}
 		}
 	}
 
-	BFS(P, P.size());
+	if (!flag)
+		return days;
+
+	while (!q.empty()) {
+		days++;
+		int SIZE = q.size();
+
+		for (int i = 0; i < SIZE; i++) {
+			Node B = q.front();
+			q.pop();
+
+			for (int k = 0; k < 6; k++) {
+				int Z = B.z + dz[k], Y = B.y + dy[k], X = B.x + dx[k];
+				if (Z >= 1 && Z <= H && Y >= 1 && Y <= N && X >= 1 && X <= M && !box[Z][Y][X]) {
+					box[Z][Y][X] = 1;
+					Node C = { Z,Y,X };
+					q.push(C);
+				}
+			}
+		}
+	}
+
+	for (int z = 1; z <= H; z++) {
+		for (int y = 1; y <= N; y++) {
+			for (int x = 1; x <= M; x++) {
+				if (box[z][y][x] == 0)
+					return -1;
+
+			}
+		}
+	}
+
+	return days-1;
 }
+
+
+	
